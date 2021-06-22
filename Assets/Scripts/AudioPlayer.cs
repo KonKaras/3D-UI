@@ -8,18 +8,30 @@ public class AudioPlayer : MonoBehaviour
     private Transform target;
     [Header("Repetitions")]
     [SerializeField]
+    private List<Interval> intervals_repetitions;
+    /*
+    [SerializeField]
     private float repetitions_per_second_start = 1;
     [SerializeField]
     private float repetitions_per_second_max = 20;    
+    */
     [Header("Volume")]
+    /*
     [SerializeField]
     private float volume_start = 0.05f;
+    */
     [SerializeField]
     private float volume_max = 1;
+    [SerializeField]
+    private List<Interval> intervals_volume;
+
 
     //public bool playAudio = true;
     [Header("Tools")]
     public bool volume_mode = true;
+    [SerializeField]
+    [Tooltip("Defines distance intervals as color key locations.")]
+    private Gradient intervals_percentages;
 
     private AudioSource source;
 
@@ -40,9 +52,13 @@ public class AudioPlayer : MonoBehaviour
     private void OnEnable()
     {
         source = GetComponent<AudioSource>();
-        starting_dist = UpdateDistance();
-        repetitions_per_second_curr = 3f;
         volume_curr = volume_max;
+
+        starting_dist = UpdateDistance();
+        MatchPercentages();
+
+        repetitions_per_second_curr = 3f;
+
         mode_prev = volume_mode;
 
     }
@@ -52,6 +68,59 @@ public class AudioPlayer : MonoBehaviour
     {
         mode_curr = volume_mode;
         ChooseMode();
+    }
+
+    void MatchPercentages()
+    {
+        // maybe catch this
+        int id = 0;
+        foreach (GradientColorKey key in intervals_percentages.colorKeys)
+        {
+            intervals_repetitions[id].SetPercentage(key.time);
+            intervals_volume[id].SetPercentage(key.time);
+            id++;
+        }
+    }
+
+    Interval SelectInterval(List<Interval> from, float percentage)
+    {
+        Interval prev_interval = from[0];
+        foreach(Interval interval in from)
+        {
+            float curr_percentage = interval.GetPercentage();
+            if (percentage > curr_percentage) prev_interval = interval;
+            else
+            {
+                if (percentage == curr_percentage) return interval;
+                else return prev_interval;
+            }
+        }
+        return from[from.Count - 1];
+    }
+
+    float CalculateLerpPercentage(List<Interval> from, Interval current_interval, float dist_percentage)
+    {
+        Interval next_interval = from[from.Count - 1];
+        int id = 0;
+        int next_id = from.Count - 1;
+        foreach (Interval interval in from)
+        {
+            if (interval.GetPercentage() == current_interval.GetPercentage())
+            {
+                next_id = (id < from.Count - 1) ? id + 1 : from.Count - 1;
+                next_interval = from[next_id];
+                break;
+            }
+            id++;
+        }
+
+        //we lerp between current interval percentage (as marked in gradient) to the next interval key or 1 for last key
+        float upper_value = (next_id != from.Count - 1) ? next_interval.GetPercentage() : 1f;
+        float lerp_percentage = Mathf.InverseLerp(current_interval.GetPercentage(), upper_value, dist_percentage);
+        //Debug.Log(lerp_percentage + " " + current_interval.lower + " " + current_interval.upper);
+        //Debug.Log(current_interval.GetPercentage() + " " + upper_value);
+
+        return lerp_percentage;
     }
 
     void ChooseMode()
@@ -94,17 +163,26 @@ public class AudioPlayer : MonoBehaviour
     private void AdaptRepetitions()
     {
         float current_dist = UpdateDistance();
-        float percentage = Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
-        //TODO maybe zones instead? Low -> low-mid -> mid -> high-mid -> high
-        repetitions_per_second_curr = Mathf.Lerp(repetitions_per_second_max, repetitions_per_second_start, percentage);
+        //Debug.Log("Current distance " + current_dist);
+
+        float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
+        //Debug.Log("Current distance % " + dist_percentage);
+        Interval current_interval = SelectInterval(intervals_repetitions, dist_percentage);
+
+        float lerp_percentage = CalculateLerpPercentage(intervals_repetitions, current_interval, dist_percentage);
+        repetitions_per_second_curr = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
     }
 
     void AdaptVolume()
     {
         float current_dist = UpdateDistance();
-        float percentage = Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
-        //TODO maybe zones instead? Low -> low-mid -> mid -> high-mid -> high
-        source.volume = Mathf.Lerp(volume_max, volume_start, percentage);
+        float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
+
+        Interval current_interval = SelectInterval(intervals_volume, dist_percentage);
+
+        float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
+        source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
+        //Debug.Log("Vol " + source.volume + " lerp_percentage " + lerp_percentage);
     }
 
     private float UpdateDistance()
