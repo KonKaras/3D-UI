@@ -1,66 +1,87 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 public class Recorder : MonoBehaviour
 {
-    [SerializeField]
-    private string path = "";
+	[SerializeField]
+	private string path = "";
 
-    private Transform prev_pose;
-    private Measurement measurement;
-    string saved = "";
-    bool prev_idle;
-    bool idle;
+	private Transform prev_pose;
+	private Measurement measurement;
+	string saved = "";
+	bool prev_idle;
+	bool idle;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	private Vector3 targetPos = Vector3.zero;//TODO set somewhere
+	private float prev_distance;
 
-    private void OnEnable()
-    {
-        prev_pose = transform;
-    }
+	void Start()
+	{
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        measurement.time_passed += Time.fixedDeltaTime;
-        measurement.distance_traveled += (transform.position - prev_pose.position).magnitude;
+	}
 
-        idle = IsIdle();
-        if (idle) UpdateIdleTime();
-        prev_idle = idle;
-    }
+	private void OnEnable()
+	{
+		prev_pose = transform;
+		prev_distance = GetDistance();
+	}
 
-    bool IsIdle()
-    {
-        // maybe lower than very small threshold instead if errors occur
-        return prev_pose.position == transform.position;
-    }
+	private float GetDistance()
+	{
+		return (targetPos - transform.position).magnitude;
+	}
 
-    void UpdateIdleTime()
-    {
-        measurement.time_idle += Time.fixedDeltaTime;
+	void FixedUpdate()
+	{
+		measurement.time_passed += Time.fixedDeltaTime;
+		UpdateDistances();
 
-        if(measurement.idle_phases.Count == 0 || idle != prev_idle)
-        {
-            measurement.SetupIdlePhase(Time.time, transform.position);
-        }
+		if (idle = IsIdle())
+		{
+			UpdateIdleTime();
+		}
+		prev_idle = idle;
+	}
 
-        measurement.idle_phases[measurement.idle_phases.Count - 1].duration += Time.fixedDeltaTime;
+	bool IsIdle()
+	{
+		return prev_pose.position.IsCloseTo(transform.position);
+	}
 
-    }
+	void UpdateIdleTime()
+	{
+		measurement.time_idle += Time.fixedDeltaTime;
 
-    void UpdateTimePassed()
-    {
-        
-    }
+		if (measurement.idle_phases.Count == 0 || idle != prev_idle)
+		{
+			measurement.SetupIdlePhase(Time.time, transform.position);
+		}
 
-    // TODO save at the end of test e.g as JSON 
+		measurement.idle_phases[measurement.idle_phases.Count - 1].duration += Time.fixedDeltaTime;
+	}
 
+	void UpdateDistances()
+	{
+		float step = (transform.position - prev_pose.position).magnitude;
+		measurement.distance_traveled += step;
+
+		float cur_distance = GetDistance();
+		if (cur_distance > prev_distance)
+		{
+			measurement.distance_wrong_dir += step;
+		}
+		else
+		{
+			measurement.distance_right_dir += step;
+		}
+	}
+
+	void Save()//TODO call this after test is finished
+	{
+		//"messure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
+		File.WriteAllText(Application.dataPath + "//resources//messure.txt", JsonUtility.ToJson(measurement));//TODO check if this works for list of Idles
+	}
 }

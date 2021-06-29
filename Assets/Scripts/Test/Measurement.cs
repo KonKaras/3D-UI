@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,10 @@ public class Measurement : MonoBehaviour
     public float degrees_turned;
     public List<IdlePhase> idle_phases;
 
+    public float distance_wrong_dir;
+    public float distance_right_dir;
+
+    [Serializable]
     public class IdlePhase
     {
         public float time_entered;
