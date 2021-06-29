@@ -14,8 +14,8 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.24670702, g: 0.2830189, b: 0.24804507, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
   m_LinearFogStart: 0
@@ -167,7 +167,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 8d24adcfe3c80e642b76c4151415f2a6, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.1
+  m_Volume: 0.05
   m_Pitch: 0.65
   Loop: 0
   Mute: 0
@@ -268,26 +268,26 @@ MonoBehaviour:
   - lower: 0.2
     upper: 0.5
   - lower: 0.5
-    upper: 1.5
-  - lower: 1.5
-    upper: 4
-  - lower: 4
+    upper: 1
+  - lower: 1
+    upper: 2
+  - lower: 2
     upper: 10
   - lower: 10
     upper: 25
   volume_max: 0.1
   intervals_volume:
-  - lower: 0
+  - lower: 0.005
+    upper: 0.01
+  - lower: 0.01
+    upper: 0.05
+  - lower: 0.05
+    upper: 0.1
+  - lower: 0.1
     upper: 0.2
   - lower: 0.2
-    upper: 0.3
-  - lower: 0.3
-    upper: 0.6
-  - lower: 0.6
-    upper: 1
-  - lower: 1
-    upper: 2
-  volume_mode: 0
+    upper: 0.4
+  volume_mode: 1
   intervals_percentages:
     serializedVersion: 2
     key0: {r: 0.02441454, g: 0, b: 1, a: 1}
@@ -299,10 +299,10 @@ MonoBehaviour:
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
-    ctime1: 27756
-    ctime2: 44911
-    ctime3: 57054
-    ctime4: 62258
+    ctime1: 9638
+    ctime2: 26985
+    ctime3: 42405
+    ctime4: 55898
     ctime5: 0
     ctime6: 0
     ctime7: 0
@@ -342,7 +342,7 @@ PrefabInstance:
     - target: {fileID: 4010490190010514662, guid: f6af6b8647f7e274f8f5f015a1d0fd9d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.36
+      value: 11.24
       objectReference: {fileID: 0}
     - target: {fileID: 4010490190010514662, guid: f6af6b8647f7e274f8f5f015a1d0fd9d,
         type: 3}
@@ -397,6 +397,82 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 563608697}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &932239285
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 932239288}
+  - component: {fileID: 932239287}
+  - component: {fileID: 932239286}
+  m_Layer: 0
+  m_Name: Terrain
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4294967295
+  m_IsActive: 1
+--- !u!154 &932239286
+TerrainCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932239285}
+  m_Material: {fileID: 0}
+  m_Enabled: 1
+  m_TerrainData: {fileID: 15600000, guid: ec84bfc924efbc84f9189a2c23e40e88, type: 2}
+  m_EnableTreeColliders: 1
+--- !u!218 &932239287
+Terrain:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932239285}
+  m_Enabled: 1
+  serializedVersion: 6
+  m_TerrainData: {fileID: 15600000, guid: ec84bfc924efbc84f9189a2c23e40e88, type: 2}
+  m_TreeDistance: 5000
+  m_TreeBillboardDistance: 50
+  m_TreeCrossFadeLength: 5
+  m_TreeMaximumFullLODCount: 50
+  m_DetailObjectDistance: 80
+  m_DetailObjectDensity: 1
+  m_HeightmapPixelError: 5
+  m_SplatMapDistance: 1000
+  m_HeightmapMaximumLOD: 0
+  m_ShadowCastingMode: 2
+  m_DrawHeightmap: 1
+  m_DrawInstanced: 0
+  m_DrawTreesAndFoliage: 1
+  m_ReflectionProbeUsage: 1
+  m_MaterialTemplate: {fileID: 2100000, guid: e0e0772d93470fa47944be427e724c5f, type: 2}
+  m_BakeLightProbesForTrees: 1
+  m_PreserveTreePrototypeLayers: 0
+  m_DeringLightProbesForTrees: 1
+  m_ScaleInLightmap: 0.0256
+  m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
+  m_GroupingID: 0
+  m_RenderingLayerMask: 1
+  m_AllowAutoConnect: 1
+--- !u!4 &932239288
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932239285}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -500, y: 0, z: -500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &981303340
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,7 +741,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1465633601}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.91, z: 30.68}
+  m_LocalPosition: {x: -241, y: 29.9, z: 234.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
