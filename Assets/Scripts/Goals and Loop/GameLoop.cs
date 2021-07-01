@@ -28,7 +28,7 @@ public class GameLoop : MonoBehaviour
 
     public void nextStep(int step)
     {
-        Debug.Log(step);
+       
         progress = step;
 
         nextText.SetActive(true);

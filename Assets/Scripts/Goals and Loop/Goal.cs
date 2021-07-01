@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NextButton : MonoBehaviour
+public class Goal : MonoBehaviour
 {
+
+    public int step;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,8 +19,12 @@ public class NextButton : MonoBehaviour
         
     }
 
-    public void SetNextStep()
+    private void OnTriggerEnter(Collider other)
     {
-        GameObject.Find("GameLoopObj").GetComponent<GameLoop>().setNextStep();
+        
+
+        GameObject.Find("GameLoopObj").GetComponent<GameLoop>().nextStep(step);
+        
+        
     }
 }
