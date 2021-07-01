@@ -11,7 +11,6 @@ using UnityEngine;
 public class FirstPersonController : MonoBehaviour, ICharacterSignals
 {
 	#region Character Signals
-
 	public IObservable<Vector3> Moved => _moved;
 	private Subject<Vector3> _moved;
 
@@ -34,6 +33,9 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	[SerializeField] private FirstPersonControllerInput firstPersonControllerInput;
 	private CharacterController _characterController;
 	private Camera _camera;
+	[SerializeField] private GameLoop _loopInstance;
+	private Recorder _recorder;
+	[Header("Other")]
 	private float walkingSpeed = 5f;
 	private float runSpeed = 10f;
 	private float jumpSpeed = 5f;
@@ -61,6 +63,7 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	{
 		_characterController = GetComponent<CharacterController>();
 		_camera = GetComponentInChildren<Camera>();
+		_recorder = GetComponent<Recorder>();
 
 		_isRunning = new ReactiveProperty<bool>(false);
 		_moved = new Subject<Vector3>().AddTo(this);
@@ -72,6 +75,7 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 
 		MoveHandler();
 		LookHandler();
+		HandleContinue();
 	}
 
 	private void MoveHandler()
@@ -161,8 +165,12 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 					}).AddTo(this);
 	}
 
-    private void Update()
-    {
-		firstPersonControllerInput.GoNext.Subscribe(_ => { GameObject.Find("GameLoopObj").GetComponent<GameLoop>().goNext(); });
-    }
+	private void HandleContinue()
+	{
+		firstPersonControllerInput.GoNext.Subscribe(_ =>
+		{
+			_loopInstance.goNext();
+			_recorder.StartRecording();
+		});
+	}
 }

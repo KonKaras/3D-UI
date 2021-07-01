@@ -8,6 +8,7 @@ public class Recorder : MonoBehaviour
 {
 	[SerializeField]
 	private string path = "";
+	private int recordCounter = 0;
 
 	private Transform prev_pose;
 	private Measurement measurement;
@@ -36,6 +37,11 @@ public class Recorder : MonoBehaviour
 
 	void FixedUpdate()
 	{
+		if(measurement == null)
+		{
+			return;
+		}
+
 		measurement.time_passed += Time.fixedDeltaTime;
 		UpdateDistances();
 
@@ -79,9 +85,19 @@ public class Recorder : MonoBehaviour
 		}
 	}
 
-	void Save()//TODO call this after test is finished
+	public void StartRecording()
 	{
-		//"messure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
-		File.WriteAllText(Application.dataPath + "//resources//messure.txt", JsonUtility.ToJson(measurement));//TODO check if this works for list of Idles
+		if(measurement != null)
+		{
+			Save();
+		}
+		measurement = new Measurement();
+	}
+
+	public void Save()
+	{
+		//"meassure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
+		//Inside Editor: Resources/meassure.txt
+		File.WriteAllText(Application.dataPath + "//Resources//" + path + "meassure" + ++recordCounter + ".txt", JsonUtility.ToJson(measurement));
 	}
 }

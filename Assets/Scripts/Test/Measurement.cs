@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Measurement : MonoBehaviour
+public class Measurement
 {
     public float time_passed;
     public float time_idle;
@@ -34,6 +34,11 @@ public class Measurement : MonoBehaviour
             ended = true;
         }
     }
+
+    public Measurement()
+	{
+        idle_phases = new List<IdlePhase>();
+	}
 
     public void SetupIdlePhase(float time_entered, Vector3 pos)
     {
