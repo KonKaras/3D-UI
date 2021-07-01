@@ -49,6 +49,14 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""GoNext"",
+                    ""type"": ""Button"",
+                    ""id"": ""b8e9fa51-88b4-4928-850d-3828850408da"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -161,6 +169,17 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3cc48c11-52c7-4823-bb89-b627ef7bebef"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GoNext"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -201,6 +220,7 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Run = m_Player.FindAction("Run", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_GoNext = m_Player.FindAction("GoNext", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -254,6 +274,7 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Run;
     private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_GoNext;
     public struct PlayerActions
     {
         private @FirstPersonInputAction m_Wrapper;
@@ -262,6 +283,7 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Run => m_Wrapper.m_Player_Run;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        public InputAction @GoNext => m_Wrapper.m_Player_GoNext;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -283,6 +305,9 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
                 @Jump.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                @GoNext.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGoNext;
+                @GoNext.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGoNext;
+                @GoNext.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGoNext;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -299,6 +324,9 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @GoNext.started += instance.OnGoNext;
+                @GoNext.performed += instance.OnGoNext;
+                @GoNext.canceled += instance.OnGoNext;
             }
         }
     }
@@ -327,5 +355,6 @@ public class @FirstPersonInputAction : IInputActionCollection, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnGoNext(InputAction.CallbackContext context);
     }
 }

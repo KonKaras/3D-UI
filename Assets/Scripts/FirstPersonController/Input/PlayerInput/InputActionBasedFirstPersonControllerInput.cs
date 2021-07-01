@@ -46,6 +46,12 @@ public class InputActionBasedFirstPersonControllerInput : FirstPersonControllerI
         _controls.Player.Jump.performed += context => {
             _jump.OnNext(Unit.Default);
         };
+
+        //Go Next
+        _goNext = new Subject<Unit>().AddTo(this);
+        _controls.Player.GoNext.performed += context => {
+            _goNext.OnNext(Unit.Default);
+        };
     }
 
     private void OnEnable()
@@ -68,6 +74,12 @@ public class InputActionBasedFirstPersonControllerInput : FirstPersonControllerI
     public override IObservable<Unit> Jump
     {
         get { return _jump; }
+    }
+
+    private Subject<Unit> _goNext;
+    public override IObservable<Unit> GoNext
+    {
+        get { return _goNext; }
     }
 
     private ReadOnlyReactiveProperty<bool> _run;

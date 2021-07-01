@@ -27,4 +27,6 @@ public abstract class FirstPersonControllerInput : MonoBehaviour
     ///     Interaction type: continuous axes.
     /// </summary>
     public abstract IObservable<Vector2> Look { get; }
+
+    public abstract IObservable<Unit> GoNext { get; }
 }

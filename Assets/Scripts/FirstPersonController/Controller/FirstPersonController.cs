@@ -160,4 +160,9 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 
 					}).AddTo(this);
 	}
+
+    private void Update()
+    {
+		firstPersonControllerInput.GoNext.Subscribe(_ => { GameObject.Find("GameLoopObj").GetComponent<GameLoop>().goNext(); });
+    }
 }
