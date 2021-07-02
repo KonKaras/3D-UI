@@ -4,27 +4,10 @@ using UnityEngine;
 
 public class Goal : MonoBehaviour
 {
-
-    public int step;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] private GameLoop _loopInstance;
 
     private void OnTriggerEnter(Collider other)
     {
-        
-
-        GameObject.Find("GameLoopObj").GetComponent<GameLoop>().nextStep(step);
-        
-        
+        _loopInstance.FinishTest();
     }
 }

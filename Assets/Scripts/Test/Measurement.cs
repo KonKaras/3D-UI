@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Measurement
 {
+    public GameLoop.TestMode mode;
     public float time_passed;
     public float time_idle;
 
@@ -35,8 +36,9 @@ public class Measurement
         }
     }
 
-    public Measurement()
+    public Measurement(GameLoop.TestMode _mode)
 	{
+        mode = _mode;
         idle_phases = new List<IdlePhase>();
 	}
 

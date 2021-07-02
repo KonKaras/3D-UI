@@ -169,8 +169,7 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	{
 		firstPersonControllerInput.GoNext.Subscribe(_ =>
 		{
-			_loopInstance.goNext();
-			_recorder.StartRecording();
+			//_loopInstance.goNext(); Not needed anymore
 		});
 	}
 }

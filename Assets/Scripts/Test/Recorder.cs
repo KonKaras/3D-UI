@@ -6,23 +6,19 @@ using UnityEngine;
 
 public class Recorder : MonoBehaviour
 {
+	#region Variables
 	[SerializeField]
 	private string path = "";
 	private int recordCounter = 0;
 
 	private Transform prev_pose;
 	private Measurement measurement;
-	string saved = "";
-	bool prev_idle;
-	bool idle;
+	private bool prev_idle;
+	private bool idle;
 
-	private Vector3 targetPos = Vector3.zero;//TODO set somewhere
+	private Vector3 targetPos = Vector3.zero;
 	private float prev_distance;
-
-	void Start()
-	{
-
-	}
+	#endregion
 
 	private void OnEnable()
 	{
@@ -85,19 +81,27 @@ public class Recorder : MonoBehaviour
 		}
 	}
 
-	public void StartRecording()
+	public void StartRecording(GameLoop.TestMode mode, Vector3 _targetPos)
 	{
 		if(measurement != null)
 		{
 			Save();
 		}
-		measurement = new Measurement();
+		measurement = new Measurement(mode);
+		targetPos = _targetPos;
 	}
 
-	public void Save()
+	public void FinishRecording()
+	{
+		Save();
+		measurement = null;
+	}
+
+	private void Save()
 	{
 		//"meassure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
 		//Inside Editor: Resources/meassure.txt
+		//Directory.GetCurrentDirectory();
 		File.WriteAllText(Application.dataPath + "//Resources//" + path + "meassure" + ++recordCounter + ".txt", JsonUtility.ToJson(measurement));
 	}
 }
