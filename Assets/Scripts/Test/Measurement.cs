@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Measurement
 {
+    public GameLoop.TEST_MODE mode;
     public float time_passed;
     public float time_idle;
 
