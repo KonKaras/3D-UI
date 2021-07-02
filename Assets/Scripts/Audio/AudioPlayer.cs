@@ -11,17 +11,8 @@ public class AudioPlayer : MonoBehaviour
 	[Header("Repetitions")]
 	[SerializeField]
 	private List<Interval> intervals_repetitions;
-	/*
-    [SerializeField]
-    private float repetitions_per_second_start = 1;
-    [SerializeField]
-    private float repetitions_per_second_max = 20;    
-    */
+
 	[Header("Volume")]
-	/*
-    [SerializeField]
-    private float volume_start = 0.05f;
-    */
 	[SerializeField]
 	private float volume_max = 1;
 	[SerializeField]
@@ -29,7 +20,7 @@ public class AudioPlayer : MonoBehaviour
 
 	//public bool playAudio = true;
 	[Header("Tools")]
-	public TEST_MODE mode;
+	public GameLoop.TEST_MODE mode;
 	[SerializeField]
 	[Tooltip("Defines distance intervals as color key locations.")]
 	private Gradient intervals_percentages;
@@ -42,11 +33,6 @@ public class AudioPlayer : MonoBehaviour
 
 	private float starting_dist;
 	private float repetitions_per_second_curr;
-	private float volume_curr;
-
-	private bool is_playing;
-	private bool mode_prev;
-	private bool mode_curr;
 
 	//Reminder: TODO maybe create an own class for text (or rename class)
 	[SerializeField]
@@ -59,14 +45,13 @@ public class AudioPlayer : MonoBehaviour
 	private void OnEnable()
 	{
 		source = GetComponent<AudioSource>();
-		volume_curr = volume_max;
 
 		starting_dist = UpdateDistance();
 		MatchPercentages();
 
 		//repetitions_per_second_curr = 3f;
 
-		if(mode == TEST_MODE.REPETITION)
+		if(mode == GameLoop.TEST_MODE.REPETITION)
         {
 			update_cooldown_curr = 1f / intervals_repetitions[0].lower;
         }
@@ -75,7 +60,7 @@ public class AudioPlayer : MonoBehaviour
 			update_cooldown_curr = update_cooldown;
 		}
 
-		if (mode == TEST_MODE.TEXT)
+		if (mode == GameLoop.TEST_MODE.TEXT)
 		{
 			distanceDisplay.SetActive(true);
 		}
@@ -83,11 +68,6 @@ public class AudioPlayer : MonoBehaviour
 		update_cooldown_start = update_cooldown;
 
 		StartCoroutine(UpdateTestValue());
-	}
-
-	private void Update()
-	{
-		//distanceDisplay.SetActive(isUsingText);//TODO I should find a better solution
 	}
 
 	void FixedUpdate()
@@ -100,7 +80,7 @@ public class AudioPlayer : MonoBehaviour
 		update_cooldown_curr -= Time.fixedDeltaTime;
 		if(update_cooldown_curr <= 0f)
         {
-			if (mode == TEST_MODE.TEXT)
+			if (mode == GameLoop.TEST_MODE.TEXT)
 			{
 				distanceDisplay.SetActive(true);
 			}
@@ -167,8 +147,6 @@ public class AudioPlayer : MonoBehaviour
 		//we lerp between current interval percentage (as marked in gradient) to the next interval key or 1 for last key
 		float upper_value = (next_id != from.Count - 1) ? next_interval.GetPercentage() : 1f;
 		float lerp_percentage = Mathf.InverseLerp(current_interval.GetPercentage(), upper_value, dist_percentage);
-		//Debug.Log(lerp_percentage + " " + current_interval.lower + " " + current_interval.upper);
-		//Debug.Log(current_interval.GetPercentage() + " " + upper_value);
 
 		return lerp_percentage;
 	}
@@ -177,35 +155,12 @@ public class AudioPlayer : MonoBehaviour
 	{
         switch (mode)
         {
-			case TEST_MODE.VOLUME: VolumeStep(); break;
-			case TEST_MODE.REPETITION: RepetitionStep(); break;
-			case TEST_MODE.TEXT: TextStep(); break;
+			case GameLoop.TEST_MODE.VOLUME: VolumeStep(); break;
+			case GameLoop.TEST_MODE.REPETITION: RepetitionStep(); break;
+			case GameLoop.TEST_MODE.TEXT: TextStep(); break;
         }
 		
-		/*
-		if (mode_curr != mode_prev)
-		{
-			if (mode_curr)
-			{
-				//StopCoroutine(OnPlayRepetition());
-				//repetitions_per_second_curr = 1f;
-				AdaptVolume();
-				//VolumeStep();
-			}
-			else
-			{
-				//StopCoroutine(OnPlayRepetition());
-				source.volume = volume_max;
-				//RepetitionStep();
-			}
-			mode_prev = mode_curr;
-		}
-		else
-		{
-			if (mode_curr) AdaptVolume();//VolumeStep();
-			else AdaptRepetitions();//RepetitionStep();
-		}
-		*/
+		
 	}
 	
 
@@ -213,14 +168,12 @@ public class AudioPlayer : MonoBehaviour
 	{
 		source.volume = volume_max;
 		AdaptRepetitions();
-		//StartCoroutine(OnPlayRepetition());
 	}
 
 	void VolumeStep()
 	{
 		update_cooldown_start = update_cooldown;
 		AdaptVolume();
-		//StartCoroutine(OnPlayRepetition());
 	}
 
 	void TextStep()
@@ -233,14 +186,13 @@ public class AudioPlayer : MonoBehaviour
 	private void AdaptRepetitions()
 	{
 		float current_dist = UpdateDistance();
-		//Debug.Log("Current distance " + current_dist);
 
 		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
-		//Debug.Log("Current distance % " + dist_percentage);
 		Interval current_interval = SelectInterval(intervals_repetitions, dist_percentage);
 
 		float lerp_percentage = CalculateLerpPercentage(intervals_repetitions, current_interval, dist_percentage);
 		repetitions_per_second_curr = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
+
 		update_cooldown_start = 1f / repetitions_per_second_curr;
 	}
 
@@ -253,39 +205,13 @@ public class AudioPlayer : MonoBehaviour
 
 		float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
 		source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
-		//Debug.Log("Vol " + source.volume + " lerp_percentage " + lerp_percentage);
 	}
 
 	private float UpdateDistance()
 	{
 		return Mathf.Abs((transform.parent.position - target.transform.position).magnitude);
 	}
-	/*
-	private IEnumerator OnPlayRepetition()
-	{
-		if (!is_playing)
-		{
-			is_playing = true;
-			if (isUsingText)
-			{
-				distanceText.text = string.Format("{0:00}m", UpdateDistance());
-			}
-			else
-			{
-				source.Play();
-			}
-
-			yield return new WaitForSeconds(1 / repetitions_per_second_curr);
-			is_playing = false;
-		}
-	}
-	*/
 
 	//TODO move this into a game logic class
-	public enum TEST_MODE
-	{
-		VOLUME,
-		REPETITION,
-		TEXT
-	}
+
 }

@@ -1,0 +1,1 @@
+{"time_passed":6.49999475479126,"time_idle":6.49999475479126,"distance_traveled":0.0,"degrees_turned":0.0,"idle_phases":[{"time_entered":3.319999933242798,"position":{"x":-0.5783557891845703,"y":9.903631210327149,"z":-0.8299903869628906},"duration":6.49999475479126,"degrees_turned":0.0}],"distance_wrong_dir":0.0,"distance_right_dir":0.0}

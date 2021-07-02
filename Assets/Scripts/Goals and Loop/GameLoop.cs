@@ -71,4 +71,10 @@ public class GameLoop : MonoBehaviour
             setNextStep();
         }
     }
+    public enum TEST_MODE
+    {
+        VOLUME,
+        REPETITION,
+        TEXT
+    }
 }
