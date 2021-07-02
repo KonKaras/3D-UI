@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public class Recorder : MonoBehaviour
 {
 	#region Variables
-	[SerializeField]
-	private string path = "";
 	private int recordCounter = 0;
 
 	private Transform prev_pose;
@@ -101,7 +96,9 @@ public class Recorder : MonoBehaviour
 	{
 		//"meassure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
 		//Inside Editor: Resources/meassure.txt
-		//Directory.GetCurrentDirectory();
-		File.WriteAllText(Application.dataPath + "//Resources//" + path + "meassure" + ++recordCounter + ".txt", JsonUtility.ToJson(measurement));
+		// before: Application.dataPath
+		string filepath = Directory.GetCurrentDirectory() + "\\meassure" + ++recordCounter + ".txt";
+		File.WriteAllText(filepath, JsonUtility.ToJson(measurement));
+		Debug.Log("Saved in: " + filepath);
 	}
 }

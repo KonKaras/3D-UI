@@ -6,13 +6,15 @@ using UnityEngine.UI;
 public class GameLoop : MonoBehaviour
 {
 	#region Variables
+	[Header("UI")]
 	[SerializeField] private InputField _codeField;
 	[SerializeField] private GameObject nextText;
 	[SerializeField] private GameObject endText;
-	[SerializeField] private ClueHandler _clueHandler;
-
+	[Header("Utility")]
+	[SerializeField] private CueHandler _clueHandler;
 	[SerializeField] private Recorder _recorder;
-
+	[SerializeField] private FirstPersonController _player;
+	[Header("Spawns & Targets")]
 	[SerializeField] private Transform start1;
 	[SerializeField] private Transform start2;
 	[SerializeField] private Transform start3;
@@ -23,14 +25,8 @@ public class GameLoop : MonoBehaviour
 	private int progress = 0;
 	private int currentTest = -1;
 
-	private bool waiting;
 	private int testCode;
 	#endregion
-
-	void Start()
-	{
-		waiting = true;
-	}
 
 	/// <summary> Called by the start button. Reades testcode once and starts the next test. </summary>
 	public void StartTest()
@@ -53,11 +49,15 @@ public class GameLoop : MonoBehaviour
 		{
 			return;// something went wrong
 		}
-		_clueHandler.StartTest(GetMode());
-		_recorder.StartRecording(GetMode(), GetTargetPos());
+		_player.SetInGame(true, GetSpawnPos());
+		TestMode mode = GetMode();
+		Vector3 target = GetTargetPos();
+		_clueHandler.StartTest(mode, target);
+		_recorder.StartRecording(mode, target);
 		++progress;
 	}
 
+	#region Init helpers
 	public void PrepareNextStep()
 	{
 		if (progress == 0)
@@ -96,6 +96,16 @@ public class GameLoop : MonoBehaviour
 		}
 	}
 
+	private Vector3 GetSpawnPos()
+	{
+		switch (progress)
+		{
+			case 0: return start1.transform.position;
+			case 1: return start2.transform.position;
+			default: return start3.transform.position;
+		}
+	}
+
 	private TestMode GetMode()
 	{
 		switch (currentTest)
@@ -115,6 +125,7 @@ public class GameLoop : MonoBehaviour
 			default: return goal3.transform.position;
 		}
 	}
+	#endregion
 
 	public void FinishTest()
 	{
@@ -127,6 +138,7 @@ public class GameLoop : MonoBehaviour
 		{
 			endText.SetActive(true);
 		}
+		_player.SetInGame(false, Vector3.zero);
 		_clueHandler.PauseTest();
 		_recorder.FinishRecording();
 	}

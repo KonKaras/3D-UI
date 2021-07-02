@@ -12,9 +12,6 @@ public class InputActionBasedFirstPersonControllerInput : FirstPersonControllerI
     protected void Awake()
     {
         _controls = new FirstPersonInputAction();
-        //Hide Mouse Cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
 
         //Move
         _move = this.UpdateAsObservable()
@@ -64,8 +61,19 @@ public class InputActionBasedFirstPersonControllerInput : FirstPersonControllerI
         _controls.Disable();
     }
 
+	public override void EnterMenuMode()
+	{
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
-    private IObservable<Vector2> _move;
+	public override void EnterGameMode()
+	{
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+	private IObservable<Vector2> _move;
     public override IObservable<Vector2> Move
     {
         get { return _move; }

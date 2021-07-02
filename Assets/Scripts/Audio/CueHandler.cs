@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ClueHandler : MonoBehaviour
+public class CueHandler : MonoBehaviour
 {
 	#region Variables
 	private bool isUpdating = false;
-	[SerializeField]
-	private Transform target;
+	private Vector3 targetPos;
 	[Header("Repetitions")]
 	[SerializeField]
 	private List<Interval> intervals_repetitions;
@@ -48,6 +47,7 @@ public class ClueHandler : MonoBehaviour
 
 		starting_dist = UpdateDistance();
 		MatchPercentages();
+		distanceDisplay.SetActive(false);
 	}
 
 	private void MatchPercentages()
@@ -62,9 +62,10 @@ public class ClueHandler : MonoBehaviour
 		}
 	}
 
-	public void StartTest(GameLoop.TestMode _mode)
+	public void StartTest(GameLoop.TestMode _mode, Vector3 _targetPos)
 	{
 		mode = _mode;
+		targetPos = _targetPos;
 		isUpdating = true;
 
 		if (mode == GameLoop.TestMode.REPETITION)
@@ -189,7 +190,7 @@ public class ClueHandler : MonoBehaviour
 	#region Helper functions
 	private float UpdateDistance()
 	{
-		return Mathf.Abs((transform.parent.position - target.transform.position).magnitude);
+		return Mathf.Abs((transform.parent.position - targetPos).magnitude);
 	}
 
 	private Interval SelectInterval(List<Interval> from, float percentage)

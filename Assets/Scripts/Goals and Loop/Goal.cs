@@ -8,6 +8,9 @@ public class Goal : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        _loopInstance.FinishTest();
+        if (other.CompareTag("Player"))
+        {
+            _loopInstance.FinishTest();
+        }
     }
 }

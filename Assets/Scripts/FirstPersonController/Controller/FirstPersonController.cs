@@ -30,11 +30,9 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 
 	#region Variables
 	[Header("References")]
-	[SerializeField] private FirstPersonControllerInput firstPersonControllerInput;
+	[SerializeField] private FirstPersonControllerInput _input;
 	private CharacterController _characterController;
 	private Camera _camera;
-	[SerializeField] private GameLoop _loopInstance;
-	private Recorder _recorder;
 	[Header("Other")]
 	private float walkingSpeed = 5f;
 	private float runSpeed = 10f;
@@ -43,6 +41,11 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	public float StrideLength => strideLength;
 
 	private float stickToGround = 5.0f;
+	[Range(0.01f, 2)]
+	[SerializeField]
+	private readonly float mouseSensitivity = 1;
+
+	private bool isInGame = false;
 
 	[Range(0, 80)] [SerializeField] private float minVTopAngle = 20f;
 	[Range(0, 80)] [SerializeField] private float minVBottomAngle = 30f;
@@ -63,7 +66,6 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	{
 		_characterController = GetComponent<CharacterController>();
 		_camera = GetComponentInChildren<Camera>();
-		_recorder = GetComponent<Recorder>();
 
 		_isRunning = new ReactiveProperty<bool>(false);
 		_moved = new Subject<Vector3>().AddTo(this);
@@ -82,13 +84,13 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	{
 		bool wasGrounded = _characterController.isGrounded;
 
-		var jumpLatch = LatchObservables.Latch(this.UpdateAsObservable(), firstPersonControllerInput.Jump, false);
-		firstPersonControllerInput.Move
+		var jumpLatch = LatchObservables.Latch(this.UpdateAsObservable(), _input.Jump, false);
+		_input.Move
 			.Zip(jumpLatch, (m, j) => new MoveInputData(m, j))
 			.Where(moveInputData => moveInputData.jump || moveInputData.move != Vector2.zero)
 			.Subscribe(input =>
 			{
-				float speed = firstPersonControllerInput.Run.Value ? runSpeed : walkingSpeed;
+				float speed = _input.Run.Value ? runSpeed : walkingSpeed;
 
 				float verticalVelocity = 0f;
 				if (input.jump && wasGrounded)
@@ -106,13 +108,15 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 					verticalVelocity = -Mathf.Abs(stickToGround);
 				}
 
-				Vector2 horizontalVelocity = input.move * speed;
-				Vector3 characterVelocity = transform.TransformVector(new Vector3(
-					horizontalVelocity.x,
-					verticalVelocity,
-					horizontalVelocity.y));
-				Vector3 distance = characterVelocity * Time.deltaTime;
-				_characterController.Move(distance);
+				if (isInGame) {
+					Vector2 horizontalVelocity = input.move * speed;
+					Vector3 characterVelocity = transform.TransformVector(new Vector3(
+						horizontalVelocity.x,
+						verticalVelocity,
+						horizontalVelocity.y));
+					Vector3 distance = characterVelocity * Time.deltaTime;
+					_characterController.Move(distance);
+				}
 
 				//Update Values
 				bool tempIsRunning = false;
@@ -123,7 +127,7 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 					if (_characterController.velocity.magnitude > 0)
 					{
 						// The chaarcter is running if the input is active and the character is actually moving on the ground
-						tempIsRunning = firstPersonControllerInput.Run.Value;
+						tempIsRunning = _input.Run.Value;
 					}
 				}
 				_isRunning.Value = tempIsRunning;
@@ -133,43 +137,60 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 
 	private void LookHandler()
 	{
-		firstPersonControllerInput.Look
-					.Where(v => v != Vector2.zero)
-					.Subscribe(rotation =>
+		_input.Look
+			.Where(v => v != Vector2.zero)
+			.Subscribe(rotation =>
+			{
+				if (isInGame)
+				{
+					rotation *= mouseSensitivity;
+					float horizontal = rotation.x * Time.deltaTime;
+					float vertical = -rotation.y * Time.deltaTime;
+
+					Vector3 old = _camera.transform.localRotation.eulerAngles;
+					//Down = 90, forward = 0/360, Up = 270
+					float dest = old.x + vertical;
+					if (dest > 180)
 					{
-						float horizontal = rotation.x * Time.deltaTime;//TODO multiply mouse sensitivity value
-						float vertical = -rotation.y * Time.deltaTime;
-
-						Vector3 old = _camera.transform.localRotation.eulerAngles;
-						//Down = 90, forward = 0/360, Up = 270
-						float dest = old.x + vertical;
-						if (dest > 180)
+						float upperBorder = 270 + minVTopAngle;
+						if (dest < upperBorder)
 						{
-							float upperBorder = 270 + minVTopAngle;
-							if (dest < upperBorder)
-							{
-								dest = upperBorder;
-							}
+							dest = upperBorder;
 						}
-						else
+					}
+					else
+					{
+						float lowerBorder = 90 - minVBottomAngle;
+						if (dest > lowerBorder)
 						{
-							float lowerBorder = 90 - minVBottomAngle;
-							if (dest > lowerBorder)
-							{
-								dest = lowerBorder;
-							}
+							dest = lowerBorder;
 						}
-						_camera.transform.localRotation = Quaternion.Euler(dest, old.y, 0);
-						transform.rotation *= Quaternion.Euler(0, horizontal, 0);
-
-					}).AddTo(this);
+					}
+					_camera.transform.localRotation = Quaternion.Euler(dest, old.y, 0);
+					transform.rotation *= Quaternion.Euler(0, horizontal, 0);
+				}
+			}).AddTo(this);
 	}
 
 	private void HandleContinue()
 	{
-		firstPersonControllerInput.GoNext.Subscribe(_ =>
+		_input.GoNext.Subscribe(_ =>
 		{
 			//_loopInstance.goNext(); Not needed anymore
 		});
+	}
+
+	public void SetInGame(bool _isInGame, Vector3 position)
+	{
+		isInGame = _isInGame;
+		if(isInGame)
+		{
+			transform.position = position;
+			_input.EnterGameMode();
+		}
+		else
+		{
+			_input.EnterMenuMode();
+		}
 	}
 }

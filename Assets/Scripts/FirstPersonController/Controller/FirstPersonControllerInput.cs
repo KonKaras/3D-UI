@@ -29,4 +29,8 @@ public abstract class FirstPersonControllerInput : MonoBehaviour
     public abstract IObservable<Vector2> Look { get; }
 
     public abstract IObservable<Unit> GoNext { get; }
+
+    public abstract void EnterMenuMode();
+
+    public abstract void EnterGameMode();
 }
