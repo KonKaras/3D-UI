@@ -11,7 +11,7 @@ public class GameLoop : MonoBehaviour
 	[SerializeField] private GameObject nextText;
 	[SerializeField] private GameObject endText;
 	[Header("Utility")]
-	[SerializeField] private CueHandler _clueHandler;
+	[SerializeField] private CueHandler _cueHandler;
 	[SerializeField] private Recorder _recorder;
 	[SerializeField] private FirstPersonController _player;
 	[Header("Spawns & Targets")]
@@ -49,10 +49,11 @@ public class GameLoop : MonoBehaviour
 		{
 			return;// something went wrong
 		}
+
 		_player.SetInGame(true, GetSpawnPos());
 		TestMode mode = GetMode();
 		Vector3 target = GetTargetPos();
-		_clueHandler.StartTest(mode, target);
+		_cueHandler.StartTest(mode, target);
 		_recorder.StartRecording(mode, target);
 		++progress;
 	}
@@ -139,7 +140,7 @@ public class GameLoop : MonoBehaviour
 			endText.SetActive(true);
 		}
 		_player.SetInGame(false, Vector3.zero);
-		_clueHandler.PauseTest();
+		_cueHandler.PauseTest();
 		_recorder.FinishRecording();
 	}
 

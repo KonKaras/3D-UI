@@ -25,12 +25,14 @@ public class CueHandler : MonoBehaviour
 	private Gradient intervals_percentages;
 	[SerializeField]
 	private float update_cooldown = 0.3f;
+	[SerializeField]
+	private float dropoff_distance = 20f;
 	private float update_cooldown_curr;
 	private float update_cooldown_start;
 
 	private AudioSource source;
 
-	private float starting_dist;
+	private float starting_dist_target;
 	private float repetitions_per_second_curr;
 
 	[Header("Distance display")]
@@ -45,9 +47,11 @@ public class CueHandler : MonoBehaviour
 	{
 		source = GetComponent<AudioSource>();
 
-		starting_dist = UpdateDistance();
+		starting_dist_target = UpdateDistance();
 		MatchPercentages();
 		distanceDisplay.SetActive(false);
+
+		PauseTest();
 	}
 
 	private void MatchPercentages()
@@ -64,6 +68,8 @@ public class CueHandler : MonoBehaviour
 
 	public void StartTest(GameLoop.TestMode _mode, Vector3 _targetPos)
 	{
+		starting_dist_target = UpdateDistance();
+
 		mode = _mode;
 		targetPos = _targetPos;
 		isUpdating = true;
@@ -149,12 +155,27 @@ public class CueHandler : MonoBehaviour
 	void AdaptVolume()
 	{
 		float current_dist = UpdateDistance();
-		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
+		/*
+		Vector3 relativePos = transform.InverseTransformPoint(startPos);
+		if(relativePos.z < 0f)
+        {
+			Debug.Log(relativePos.z);
+			float dist_percentage = Mathf.Clamp(Mathf.Abs(relativePos.z) / dropoff_distance, 0f, 1f);
+			Debug.Log(dist_percentage);
+			source.volume = Mathf.Lerp(0f, intervals_volume[0].lower, dist_percentage);
+		}
+		else
+        {
+		*/
+			float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist_target, 0f, 1f);
 
-		Interval current_interval = SelectInterval(intervals_volume, dist_percentage);
+			Interval current_interval = SelectInterval(intervals_volume, dist_percentage);
 
-		float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
-		source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
+			float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
+			source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
+		//}
+
+		
 	}
 	#endregion
 
@@ -169,13 +190,14 @@ public class CueHandler : MonoBehaviour
 	{
 		float current_dist = UpdateDistance();
 
-		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist, 0f, 1f);
+		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist_target, 0f, 1f);
 		Interval current_interval = SelectInterval(intervals_repetitions, dist_percentage);
 
 		float lerp_percentage = CalculateLerpPercentage(intervals_repetitions, current_interval, dist_percentage);
 		repetitions_per_second_curr = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
-
+		if (repetitions_per_second_curr == 0f) repetitions_per_second_curr = 0.00001f;
 		update_cooldown_start = 1f / repetitions_per_second_curr;
+		if (update_cooldown_start < update_cooldown_curr) update_cooldown_curr = update_cooldown_start;
 	}
 	#endregion
 
