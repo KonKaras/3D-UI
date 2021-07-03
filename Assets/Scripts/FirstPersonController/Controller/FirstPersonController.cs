@@ -34,7 +34,7 @@ public class FirstPersonController : MonoBehaviour, ICharacterSignals
 	private CharacterController _characterController;
 	private Camera _camera;
 	[Header("Other")]
-	private float walkingSpeed = 5f;
+	private float walkingSpeed = 10f;//5f;
 	private float runSpeed = 10f;
 	private float jumpSpeed = 5f;
 	[SerializeField] private float strideLength = 4f;
