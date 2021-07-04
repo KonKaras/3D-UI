@@ -45,7 +45,6 @@ public class GameLoop : MonoBehaviour
 		}
 
 		currentTest = GetTest();
-		Debug.Log(currentTest);
 		if (currentTest == -1)
 		{
 			return;// something went wrong
@@ -55,7 +54,6 @@ public class GameLoop : MonoBehaviour
 		PrepareNextStep();
 
 		TestMode mode = GetMode();
-		Debug.Log(mode);
 		Vector3 target = GetTargetPos();
 		_cueHandler.StartTest(mode, target);
 		_recorder.StartRecording(mode, target);

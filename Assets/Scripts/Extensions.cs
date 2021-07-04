@@ -6,6 +6,6 @@ public static class Extensions
 {
     public static bool IsCloseTo(this Vector3 self, Vector3 other)
 	{
-		return (self - other).magnitude < 0.01f;
+		return (self - other).magnitude < 0.0001f;
 	}
 }

@@ -12,6 +12,7 @@ public class Measurement
 
     public float distance_traveled;
     public float degrees_turned;
+    public float min_necessary_degrees;
     public List<IdlePhase> idle_phases;
 
     public float distance_wrong_dir;

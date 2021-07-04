@@ -47,11 +47,8 @@ public class CueHandler : MonoBehaviour
 	{
 		source = GetComponent<AudioSource>();
 
-		starting_dist_target = UpdateDistance() + dropoff_distance;
 		MatchPercentages();
 		distanceDisplay.SetActive(false);
-
-		PauseTest();
 	}
 
 	private void MatchPercentages()
@@ -68,14 +65,15 @@ public class CueHandler : MonoBehaviour
 
 	public void StartTest(GameLoop.TestMode _mode, Vector3 _targetPos)
 	{
-		starting_dist_target = UpdateDistance();
-
 		mode = _mode;
 		targetPos = _targetPos;
 		isUpdating = true;
 
+		starting_dist_target = UpdateDistance() + dropoff_distance;
+
 		if (mode == GameLoop.TestMode.REPETITION)
 		{
+			source.volume = volume_max;
 			update_cooldown_curr = 1f / intervals_repetitions[0].lower;
 		}
 		else
@@ -111,10 +109,24 @@ public class CueHandler : MonoBehaviour
 	#region Update
 	void FixedUpdate()
 	{
+		RunEditorUpdate();
 		if (isUpdating)
 		{
 			PlaySound();
 		}
+	}
+
+	private void RunEditorUpdate()//Just testcode for editor
+	{
+		if (mode == GameLoop.TestMode.REPETITION)
+		{
+			source.volume = volume_max;
+		}
+		else
+		{
+			update_cooldown_start = update_cooldown;
+		}
+		distanceDisplay.SetActive(mode == GameLoop.TestMode.TEXT);
 	}
 
 	private void PlaySound()
@@ -139,17 +151,11 @@ public class CueHandler : MonoBehaviour
 	public void PauseTest()
 	{
 		isUpdating = false;
-		StopCoroutine(UpdateTestValue());
+		StopAllCoroutines();
 	}
 
 	#region Volume
 	private void VolumeStep()
-	{
-		update_cooldown_start = update_cooldown;
-		AdaptVolume();
-	}
-
-	void AdaptVolume()
 	{
 		float current_dist = UpdateDistance();
 		/*
@@ -177,12 +183,6 @@ public class CueHandler : MonoBehaviour
 	#region Repetition
 	private void RepetitionStep()
 	{
-		source.volume = volume_max;
-		AdaptRepetitions();
-	}
-
-	private void AdaptRepetitions()
-	{
 		float current_dist = UpdateDistance();
 
 		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist_target, 0f, 1f);
@@ -192,7 +192,7 @@ public class CueHandler : MonoBehaviour
 		repetitions_per_second_curr = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
 		if (repetitions_per_second_curr == 0f) repetitions_per_second_curr = 0.00001f;
 		update_cooldown_start = 1f / repetitions_per_second_curr;
-		if (update_cooldown_start < update_cooldown_curr) update_cooldown_curr = 0;
+		if (update_cooldown_start < update_cooldown_curr) update_cooldown_curr = update_cooldown_start;
 	}
 	#endregion
 

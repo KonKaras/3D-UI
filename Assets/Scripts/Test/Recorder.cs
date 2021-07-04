@@ -47,10 +47,12 @@ public class Recorder : MonoBehaviour
 		}
 		UpdateRotation();
 
+		prevPos = transform.position;
 		prev_idle = idle;
+		prevRot = transform.rotation;
 	}
 
-	void UpdateDistances()
+	private void UpdateDistances()
 	{
 		float step = (transform.position - prevPos).magnitude;
 		measurement.distance_traveled += step;
@@ -64,7 +66,6 @@ public class Recorder : MonoBehaviour
 		{
 			measurement.distance_right_dir += step;
 		}
-		prevPos = transform.position;
 	}
 
 	private float GetDistance()
@@ -72,12 +73,12 @@ public class Recorder : MonoBehaviour
 		return (targetPos - transform.position).magnitude;
 	}
 
-	bool IsIdle()
+	private bool IsIdle()
 	{
 		return prevPos.IsCloseTo(transform.position);
 	}
 
-	void UpdateIdleTime()
+	private void UpdateIdleTime()
 	{
 		measurement.time_idle += Time.fixedDeltaTime;
 
@@ -93,7 +94,6 @@ public class Recorder : MonoBehaviour
 	private void UpdateRotation()
 	{
 		measurement.degrees_turned += Quaternion.Angle(transform.rotation, prevRot);
-		prevRot = transform.rotation;
 	}
 
 	#region Start/Finish Recording
@@ -104,6 +104,7 @@ public class Recorder : MonoBehaviour
 			UpdateData();
 		}
 		measurement = new Measurement(mode);
+		measurement.min_necessary_degrees = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Vector3.up, _targetPos - transform.position));
 		targetPos = _targetPos;
 		prevPos = transform.position;
 		prevRot = transform.rotation;
