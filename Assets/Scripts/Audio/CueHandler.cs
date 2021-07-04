@@ -47,7 +47,7 @@ public class CueHandler : MonoBehaviour
 	{
 		source = GetComponent<AudioSource>();
 
-		starting_dist_target = UpdateDistance();
+		starting_dist_target = UpdateDistance() + dropoff_distance;
 		MatchPercentages();
 		distanceDisplay.SetActive(false);
 
