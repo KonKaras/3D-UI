@@ -10,6 +10,7 @@ public class Goal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            gameObject.SetActive(false);
             _loopInstance.FinishTest();
         }
     }

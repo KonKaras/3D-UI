@@ -37,21 +37,25 @@ public class GameLoop : MonoBehaviour
 			{
 				return;
 			}
-			testCode = int.Parse(_codeField.text);
+
+			_recorder.Init(_codeField.text);
+			testCode = int.Parse(_codeField.text.Substring(_codeField.text.Length - 3));
 			_codeField.gameObject.SetActive(false);
 			nextText.SetActive(false);
 		}
 
-		PrepareNextStep();
-
 		currentTest = GetTest();
+		Debug.Log(currentTest);
 		if (currentTest == -1)
 		{
 			return;// something went wrong
 		}
 
 		_player.SetInGame(true, GetSpawnPos());
+		PrepareNextStep();
+
 		TestMode mode = GetMode();
+		Debug.Log(mode);
 		Vector3 target = GetTargetPos();
 		_cueHandler.StartTest(mode, target);
 		_recorder.StartRecording(mode, target);
@@ -78,7 +82,7 @@ public class GameLoop : MonoBehaviour
 			goal3.SetActive(true);
 			nextText.SetActive(false);
 		}
-		else
+		else if(progress == 3)
 		{
 			goal3.SetActive(false);
 			nextText.SetActive(false);
@@ -130,7 +134,7 @@ public class GameLoop : MonoBehaviour
 
 	public void FinishTest()
 	{
-		nextText.SetActive(true);
+		_recorder.FinishRecording();
 		if (progress < 3)
 		{
 			nextText.SetActive(true);
@@ -138,10 +142,10 @@ public class GameLoop : MonoBehaviour
 		else
 		{
 			endText.SetActive(true);
+			_recorder.Save();
 		}
 		_player.SetInGame(false, Vector3.zero);
 		_cueHandler.PauseTest();
-		_recorder.FinishRecording();
 	}
 
 	public enum TestMode

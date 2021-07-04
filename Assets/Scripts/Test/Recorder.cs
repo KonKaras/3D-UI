@@ -3,11 +3,21 @@ using UnityEngine;
 
 public class Recorder : MonoBehaviour
 {
+	[System.Serializable]
+	private struct TestData
+	{
+		public string code;
+		public Measurement[] tests;
+	}
+
 	#region Variables
 	private int recordCounter = 0;
+	[SerializeField] private bool shouldSave = true;
 
-	private Transform prev_pose;
+	private Vector3 prevPos;
+	private Quaternion prevRot;
 	private Measurement measurement;
+	private TestData testData;
 	private bool prev_idle;
 	private bool idle;
 
@@ -15,20 +25,15 @@ public class Recorder : MonoBehaviour
 	private float prev_distance;
 	#endregion
 
-	private void OnEnable()
+	public void Init(string code)
 	{
-		prev_pose = transform;
-		prev_distance = GetDistance();
-	}
-
-	private float GetDistance()
-	{
-		return (targetPos - transform.position).magnitude;
+		testData.code = code;
+		testData.tests = new Measurement[3];
 	}
 
 	void FixedUpdate()
 	{
-		if(measurement == null)
+		if (measurement == null)
 		{
 			return;
 		}
@@ -40,12 +45,36 @@ public class Recorder : MonoBehaviour
 		{
 			UpdateIdleTime();
 		}
+		UpdateRotation();
+
 		prev_idle = idle;
+	}
+
+	void UpdateDistances()
+	{
+		float step = (transform.position - prevPos).magnitude;
+		measurement.distance_traveled += step;
+
+		float cur_distance = GetDistance();
+		if (cur_distance > prev_distance)
+		{
+			measurement.distance_wrong_dir += step;
+		}
+		else
+		{
+			measurement.distance_right_dir += step;
+		}
+		prevPos = transform.position;
+	}
+
+	private float GetDistance()
+	{
+		return (targetPos - transform.position).magnitude;
 	}
 
 	bool IsIdle()
 	{
-		return prev_pose.position.IsCloseTo(transform.position);
+		return prevPos.IsCloseTo(transform.position);
 	}
 
 	void UpdateIdleTime()
@@ -58,47 +87,51 @@ public class Recorder : MonoBehaviour
 		}
 
 		measurement.idle_phases[measurement.idle_phases.Count - 1].duration += Time.fixedDeltaTime;
+		measurement.idle_phases[measurement.idle_phases.Count - 1].degrees_turned += Quaternion.Angle(transform.rotation, prevRot);
 	}
 
-	void UpdateDistances()
+	private void UpdateRotation()
 	{
-		float step = (transform.position - prev_pose.position).magnitude;
-		measurement.distance_traveled += step;
-
-		float cur_distance = GetDistance();
-		if (cur_distance > prev_distance)
-		{
-			measurement.distance_wrong_dir += step;
-		}
-		else
-		{
-			measurement.distance_right_dir += step;
-		}
+		measurement.degrees_turned += Quaternion.Angle(transform.rotation, prevRot);
+		prevRot = transform.rotation;
 	}
 
+	#region Start/Finish Recording
 	public void StartRecording(GameLoop.TestMode mode, Vector3 _targetPos)
 	{
-		if(measurement != null)
+		if (measurement != null)
 		{
-			Save();
+			UpdateData();
 		}
 		measurement = new Measurement(mode);
 		targetPos = _targetPos;
+		prevPos = transform.position;
+		prevRot = transform.rotation;
+		prev_distance = GetDistance();
 	}
 
 	public void FinishRecording()
 	{
-		Save();
+		UpdateData();
 		measurement = null;
 	}
 
-	private void Save()
+	private void UpdateData()
 	{
-		//"meassure.txt" should be created/overriden in a subfolder of /Users/Username/Appdata (this folder might be hidden)
-		//Inside Editor: Resources/meassure.txt
-		// before: Application.dataPath
-		string filepath = Directory.GetCurrentDirectory() + "\\meassure" + ++recordCounter + ".txt";
-		File.WriteAllText(filepath, JsonUtility.ToJson(measurement));
-		Debug.Log("Saved in: " + filepath);
+		if (recordCounter < testData.tests.Length)
+		{
+			testData.tests[recordCounter++] = measurement;
+		}
+	}
+	#endregion
+
+	public void Save()
+	{
+		if (shouldSave)
+		{
+			string filepath = Directory.GetCurrentDirectory() + "\\meassure.txt";
+			File.WriteAllText(filepath, JsonUtility.ToJson(testData));
+			Debug.Log("Saved data in: " + filepath);
+		}
 	}
 }

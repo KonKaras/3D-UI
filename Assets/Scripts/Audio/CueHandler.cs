@@ -83,10 +83,7 @@ public class CueHandler : MonoBehaviour
 			update_cooldown_curr = update_cooldown;
 		}
 
-		if (mode == GameLoop.TestMode.TEXT)
-		{
-			distanceDisplay.SetActive(true);
-		}
+		distanceDisplay.SetActive(mode == GameLoop.TestMode.TEXT);
 
 		update_cooldown_start = update_cooldown;
 
@@ -167,15 +164,13 @@ public class CueHandler : MonoBehaviour
 		else
         {
 		*/
-			float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist_target, 0f, 1f);
+		float dist_percentage = 1f - Mathf.Clamp(current_dist / starting_dist_target, 0f, 1f);
 
-			Interval current_interval = SelectInterval(intervals_volume, dist_percentage);
+		Interval current_interval = SelectInterval(intervals_volume, dist_percentage);
 
-			float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
-			source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
+		float lerp_percentage = CalculateLerpPercentage(intervals_volume, current_interval, dist_percentage);
+		source.volume = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
 		//}
-
-		
 	}
 	#endregion
 
@@ -197,14 +192,13 @@ public class CueHandler : MonoBehaviour
 		repetitions_per_second_curr = Mathf.Lerp(current_interval.lower, current_interval.upper, lerp_percentage);
 		if (repetitions_per_second_curr == 0f) repetitions_per_second_curr = 0.00001f;
 		update_cooldown_start = 1f / repetitions_per_second_curr;
-		if (update_cooldown_start < update_cooldown_curr) update_cooldown_curr = update_cooldown_start;
+		if (update_cooldown_start < update_cooldown_curr) update_cooldown_curr = 0;
 	}
 	#endregion
 
 	#region Text
 	private void TextStep()
 	{
-		distanceDisplay.SetActive(true);
 		distanceText.text = string.Format("{0:00}m", UpdateDistance());
 	}
 	#endregion
