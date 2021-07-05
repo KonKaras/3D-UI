@@ -34,10 +34,12 @@ public class GameLoop : MonoBehaviour
 	{
 		if (currentTest == -1)
 		{
-			if (_codeField.text.Length != 3)
+			
+			if (_codeField.text.Length != 5)
 			{
 				return;
 			}
+			
 
 			_recorder.Init(_codeField.text);
 			testCode = int.Parse(_codeField.text.Substring(_codeField.text.Length - 3));
