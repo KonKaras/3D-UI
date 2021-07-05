@@ -12,7 +12,7 @@ public class DivideVector2ByDeltaTimeProcessor : InputProcessor<Vector2>
         Initialize();
     }
 #endif
-    [RuntimeInitializeOnLoadMethod]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
         InputSystem.RegisterProcessor<DivideVector2ByDeltaTimeProcessor>();

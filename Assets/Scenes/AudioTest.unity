@@ -376,7 +376,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   intervals_repetitions:
-  - lower: 0.16666667
+  - lower: 0
     upper: 0.5
   - lower: 0.5
     upper: 1.25
@@ -388,7 +388,7 @@ MonoBehaviour:
     upper: 18.75
   volume_max: 0.1
   intervals_volume:
-  - lower: 0.005
+  - lower: 0
     upper: 0.015
   - lower: 0.015
     upper: 0.0375
@@ -429,7 +429,7 @@ MonoBehaviour:
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
   update_cooldown: 0.3
-  dropoff_distance: 20
+  dropoff_distance: 35
   distanceDisplay: {fileID: 1990228755}
   distanceText: {fileID: 580083026}
 --- !u!1 &526485801
