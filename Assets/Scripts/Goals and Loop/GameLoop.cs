@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameLoop : MonoBehaviour
@@ -9,7 +10,7 @@ public class GameLoop : MonoBehaviour
 	[Header("UI")]
 	[SerializeField] private InputField _codeField;
 	[SerializeField] private GameObject nextText;
-	[SerializeField] private GameObject endText;
+	[SerializeField] private GameObject endUI;
 	[Header("Utility")]
 	[SerializeField] private CueHandler _cueHandler;
 	[SerializeField] private Recorder _recorder;
@@ -84,7 +85,7 @@ public class GameLoop : MonoBehaviour
 		{
 			goal3.SetActive(false);
 			nextText.SetActive(false);
-			endText.SetActive(true);
+			endUI.SetActive(true);
 		}
 	}
 
@@ -139,12 +140,24 @@ public class GameLoop : MonoBehaviour
 		}
 		else
 		{
-			endText.SetActive(true);
+			endUI.SetActive(true);
 			_recorder.Save();
 		}
 		_player.SetInGame(false, Vector3.zero);
 		_cueHandler.PauseTest();
 	}
+
+	#region Start & Exit
+	public void StartTests()
+	{
+		SceneManager.LoadScene(1);
+	}
+
+	public void Exit()
+	{
+		Application.Quit();
+	}
+	#endregion
 
 	public enum TestMode
 	{
