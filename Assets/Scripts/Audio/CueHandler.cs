@@ -199,7 +199,8 @@ public class CueHandler : MonoBehaviour
 	#region Text
 	private void TextStep()
 	{
-		distanceText.text = string.Format("{0:00}m", UpdateDistance());
+		float curr = UpdateDistance();
+		distanceText.text = (curr > 260) ? string.Format(">{0:00}m", Mathf.Clamp(0, 260f, curr)) : string.Format("{0:00}m", curr);
 	}
 	#endregion
 
